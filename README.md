@@ -57,15 +57,3 @@ src/
 ├── lib/              # Utility functions
 └── utils/            # Blockchain logic
 ```
-
-## Rubric Checklist
-
-- ✅ **Chain display (20pts)** - All 6 fields: block number, timestamp, data, previous hash, nonce, hash
-- ✅ **Mining functionality (20pts)** - Interactive mining with progress feedback (attempts, time)
-- ✅ **Validation indicator (15pts)** - Green/red indicator, updates automatically
-- ✅ **Difficulty selector (10pts)** - Dropdown with options 1-4 (leading zeros)
-- ✅ **Clean UI (15pts)** - Minimalist brutalist design, clear visual feedback
-- ✅ **Code quality (10pts)** - Modular components, TypeScript, clean architecture
-- ✅ **README & screenshots (10pts)** - Complete instructions with 2 screenshots
-
-**Total: 100/100 points**
