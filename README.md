@@ -3,10 +3,8 @@
 ## Screenshots
 
 ![Blockchain Interface](public/images/image.png)
-*Main blockchain interface showing 3 blocks with validation*
 
 ![Mining in Progress](public/images/image2.png)
-*Mining process with real-time feedback*
 
 ## About
 
