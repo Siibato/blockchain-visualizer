@@ -30,9 +30,11 @@ const MiningBlock = forwardRef<MiningBlockRef, MiningBlockProps>(({
   const [attempts, setAttempts] = useState(0);
   const [isMining, setIsMining] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  
+  // Lazy initialization - only runs once on mount
+  const [timestamp] = useState(() => Date.now());
 
   const shouldCancelRef = useRef(false);
-  const timestampRef = useRef(Date.now());
   const startTimeRef = useRef(0);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousHashRef = useRef<string | undefined>(previousHash);
@@ -47,8 +49,8 @@ const MiningBlock = forwardRef<MiningBlockRef, MiningBlockProps>(({
   useEffect(() => {
     const computeHash = async () => {
       const dataToHash = previousHashRef.current
-        ? `${blockNumber}${previousHashRef.current}${timestampRef.current}${data}${nonce}`
-        : `${blockNumber}${timestampRef.current}${data}${nonce}`;
+        ? `${blockNumber}${previousHashRef.current}${timestamp}${data}${nonce}`
+        : `${blockNumber}${timestamp}${data}${nonce}`;
       const newHash = await SHA256(dataToHash);
 
       // Only update if hash actually changed to prevent infinite loops
@@ -62,7 +64,7 @@ const MiningBlock = forwardRef<MiningBlockRef, MiningBlockProps>(({
     };
 
     computeHash();
-  }, [data, nonce, blockNumber, onHashChange]);
+  }, [data, nonce, blockNumber, onHashChange, timestamp]);
 
   const isValidHash = hash.startsWith(requiredPrefix);
 
@@ -84,8 +86,8 @@ const MiningBlock = forwardRef<MiningBlockRef, MiningBlockProps>(({
     while (!found && !shouldCancelRef.current) {
       currentAttempts++;
       const dataToHash = previousHashRef.current
-        ? `${blockNumber}${previousHashRef.current}${timestampRef.current}${data}${currentNonce}`
-        : `${blockNumber}${timestampRef.current}${data}${currentNonce}`;
+        ? `${blockNumber}${previousHashRef.current}${timestamp}${data}${currentNonce}`
+        : `${blockNumber}${timestamp}${data}${currentNonce}`;
       const newHash = await SHA256(dataToHash);
 
       // Only update UI every 10 attempts to reduce re-renders
@@ -162,14 +164,8 @@ const MiningBlock = forwardRef<MiningBlockRef, MiningBlockProps>(({
     },
     isValid: () => isValidHash,
     isMining: () => isMining,
-    getData: () => ({ data, timestamp: timestampRef.current, hash, nonce }),
+    getData: () => ({ data, timestamp, hash, nonce }),
   }));
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -179,17 +175,9 @@ const MiningBlock = forwardRef<MiningBlockRef, MiningBlockProps>(({
     };
   }, []);
 
-  const formatHash = (hash: string) => {
-    if (!hash || hash.length <= 10) return hash;
-    return `${hash.substring(0, 10)}...`;
-  };
-
   const formatTimestamp = (ts: number) => {
     return new Date(ts).toLocaleString();
   };
-
-  const timestamp = timestampRef.current;
-  const displayTimestamp = isMounted ? formatTimestamp(timestamp) : 'Loading...';
 
   return (
     <div className={`bg-white border-4 transition-all ${
@@ -213,8 +201,8 @@ const MiningBlock = forwardRef<MiningBlockRef, MiningBlockProps>(({
           <div className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
             Timestamp
           </div>
-          <div className="font-mono text-xs p-3 border-2 border-gray-400 bg-gray-100 suppressHydrationWarning">
-            {displayTimestamp}
+          <div className="font-mono text-xs p-3 border-2 border-gray-400 bg-gray-100" suppressHydrationWarning>
+            {formatTimestamp(timestamp)}
           </div>
         </div>
 
